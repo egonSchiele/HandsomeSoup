@@ -9,6 +9,7 @@ import Control.Monad.Trans
 import Data.Maybe
 import Text.Parsec
 import qualified Data.Map as M
+import Data.Monoid (mconcat)
 
 data Selector = Selector { sName :: String, sAttrs :: M.Map String String }
 
@@ -38,6 +39,8 @@ universalSelector = do
     string "*"
     return $ Selector "*" M.empty
 
+-- TODO the tag name should be optional, and if not given should default to
+-- "*"
 tagSelector = do
     tagName <- tag
     -- many1 (klass <|> id_ <|> secondarySelector <|> tagAttribute)
@@ -48,7 +51,19 @@ singleSelector = universalSelector <|> tagSelector
 
 selector = many1 singleSelector `sepBy` (spaces >> combinator >> spaces)
 
-css tag = multi (hasName tag)
+css tag = case (parse selector "" tag) of
+       Left err -> print err
+       Right x  -> fromSelectors (mconcat x)
+
+
+-- make an arrow from selectors
+
+-- TODO remember to account for "*"! The universal selector.
+fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (make s) selectors
+  where make (Selector name attrs) = multi $ hasName name >>> makeAttrs (M.toList attrs)
+        makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
+        makeAttr (name, value) = hasAttrValue name (==value)
+
 
 -- helper function for getting page content
 openUrl :: String -> MaybeT IO String
@@ -71,9 +86,7 @@ parseHtml = readString [withParseHTML yes, withWarnings no]
 -- str = "h1.class, h2#someid, h3[lang], h4:first-child > h5, h6 h7"
 str = "h1.class, h2#someid"
 
-main = case (parse selector "" str) of
-       Left err -> do{ putStr "parse error at "
-                     ; print err
-                     }
-       Right x  -> print x
-
+main = do
+  doc <- fromUrl
+  links <- runX $ doc >>> css "h3.r" >>> css "a" ! "href"
+  mapM_ putStrLn links
