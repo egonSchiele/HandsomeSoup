@@ -15,10 +15,10 @@ import qualified Debug.Trace as D
 
 -- if no tag name was given, sName will be set to '*'
 
-data Selector = Selector { sName :: String, sAttrs :: [(String,String)] }
+data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] }
 
 instance Show Selector where
-  show (Selector name attrs) = show name ++ ":" ++ showMap attrs
+  show (Selector name attrs pseudo) = show name ++ ":" ++ showMap attrs ++ ", " ++ show pseudo
       where showMap m = (init.init $ "{" ++ (foldl (\acc (k,v) -> acc ++ (show k) ++ ":" ++ (show v) ++ ", ") "" m)) ++ "}"
 
 combinator = char ' ' <|> char '+' <|> char '>' <|> char ','
@@ -57,11 +57,13 @@ tagSelector :: ParsecT [Char] u I.Identity Selector
 tagSelector = do
     tagName <- tag <|> universalSelector
     attrs <- many1 (klass <|> id_) <|> (return [])
-    return $ Selector tagName attrs
+    pseudo <- many1 pseudoClass <|> (return [])
+    return $ Selector tagName attrs pseudo
 
 secondarySelector = do
     attrs <- many1 (klass <|> id_)
-    return $ Selector "*" attrs
+    pseudo <- many1 pseudoClass <|> (return [])
+    return $ Selector "*" attrs pseudo
 
 -- | A simple selector is either a type selector or universal selector followed immediately by zero or more attribute selectors, ID selectors, or pseudo-classes, in any order.
 simpleSelector :: ParsecT [Char] u I.Identity Selector
@@ -80,9 +82,9 @@ css tag = case (parse selector "" tag) of
 
 -- TODO remember to account for "*"! The universal selector.
 fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (make s) selectors
-  where make (Selector name attrs) 
+  where make sel@(Selector name attrs pseudo) 
           | name == "*" = multi this >>> makeAttrs attrs
-          | otherwise = multi $ hasName name >>> makeAttrs attrs
+          | otherwise = (D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
         makeAttr (name, value) = hasAttrValue name (==value)
@@ -112,7 +114,7 @@ str = "h1.class, h2#someid"
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
-  links <- runX $ doc >>> css "a.sister" >>> getName
+  links <- runX $ doc >>> css "a.sister:first-child:after" >>> getName
   print links
 
 
