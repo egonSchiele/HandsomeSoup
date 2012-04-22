@@ -21,37 +21,51 @@ instance Show Selector where
 
 combinator = char ' ' <|> char '+' <|> char '>' <|> char ','
 
+--| selects a tag name, like "h1"
+tag :: ParsecT [Char] u I.Identity [Char]
 tag = many1 alphaNum
 
 -- secondarySelector = char ':' >> many1 (alphaNum <|> oneOf "-")
 
 -- tagAttribute = between (char '[') (char ']') (many1 alphaNum)
 
+--| class selector, selects ".foo"
+klass :: ParsecT [Char] u I.Identity ([Char], [Char])
 klass = do
     char '.' 
     val <- many1 alphaNum
     return ("class", val)
 
+--| id selector, selects "#foo"
+id_ :: ParsecT [Char] u I.Identity ([Char], [Char])
 id_ = do
     char '#'
     val <- many1 alphaNum
     return ("id", val)
 
--- TODO the tag name should be optional, and if not given should default to
--- "*"
+--| universal selector, selects "*"
+universalSelector :: ParsecT [Char] u I.Identity String
+universalSelector = string "*"
+
+--| selects a tagname followed by one or more secondary selectors
+--| example: "a.foo", "*#hello", "h1" etc
+tagSelector :: ParsecT [Char] u I.Identity Selector
 tagSelector = do
-    tagName <- tag <|> string "*"
+    tagName <- tag <|> universalSelector
     attrs <- many1 (klass <|> id_) <|> (return [])
     return $ Selector tagName (M.fromList attrs)
 
-attributeSelector = do
+secondarySelector = do
     attrs <- many1 (klass <|> id_)
     return $ Selector "*" (M.fromList attrs)
 
-singleSelector = tagSelector <|> attributeSelector
+--| A simple selector is either a type selector or universal selector followed immediately by zero or more attribute selectors, ID selectors, or pseudo-classes, in any order.
+simpleSelector :: ParsecT [Char] u I.Identity Selector
+simpleSelector = tagSelector <|> secondarySelector
 
+--| One or more simple selectors separated by combinators
 selector :: ParsecT [Char] u I.Identity [[Selector]]
-selector = many1 singleSelector `sepBy` (spaces >> combinator >> spaces)
+selector = many1 simpleSelector `sepBy` (spaces >> combinator >> spaces)
 
 css tag = case (parse selector "" tag) of
        Left err -> D.trace (show err) this
