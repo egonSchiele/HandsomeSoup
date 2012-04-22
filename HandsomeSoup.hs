@@ -10,6 +10,8 @@ import Data.Maybe
 import Text.Parsec
 import qualified Data.Map as M
 import Data.Monoid (mconcat)
+import qualified Data.Functor.Identity as I
+import qualified Debug.Trace as D
 
 data Selector = Selector { sName :: String, sAttrs :: M.Map String String }
 
@@ -37,22 +39,24 @@ id_ = do
 
 universalSelector = do
     string "*"
-    return $ Selector "*" M.empty
+    return univ
+
+univ = Selector "*" M.empty
 
 -- TODO the tag name should be optional, and if not given should default to
 -- "*"
 tagSelector = do
-    tagName <- tag
-    -- many1 (klass <|> id_ <|> secondarySelector <|> tagAttribute)
-    attrs <- many1 (klass <|> id_)
+    tagName <- tag <|> string "*"
+    attrs <- many1 (klass <|> id_) <|> (return [])
     return $ Selector tagName (M.fromList attrs)
 
 singleSelector = universalSelector <|> tagSelector
 
-selector = many1 singleSelector `sepBy` (spaces >> combinator >> spaces)
+selector :: ParsecT [Char] u I.Identity [[Selector]]
+selector = many1 tagSelector `sepBy` (spaces >> combinator >> spaces)
 
 css tag = case (parse selector "" tag) of
-       Left err -> print err
+       Left err -> D.trace (show err) this
        Right x  -> fromSelectors (mconcat x)
 
 
@@ -60,8 +64,11 @@ css tag = case (parse selector "" tag) of
 
 -- TODO remember to account for "*"! The universal selector.
 fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (make s) selectors
-  where make (Selector name attrs) = multi $ hasName name >>> makeAttrs (M.toList attrs)
+  where make (Selector name attrs) 
+          | name == "*" = multi this
+          | otherwise = multi $ hasName name >>> makeAttrs (M.toList attrs)
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
+        makeAttrs [] = this
         makeAttr (name, value) = hasAttrValue name (==value)
 
 
@@ -87,6 +94,9 @@ parseHtml = readString [withParseHTML yes, withWarnings no]
 str = "h1.class, h2#someid"
 
 main = do
-  doc <- fromUrl
-  links <- runX $ doc >>> css "h3.r" >>> css "a" ! "href"
-  mapM_ putStrLn links
+  content <- readFile "test.html"
+  let doc = parseHtml content
+  links <- runX $ doc >>> css "*" //> getName
+  print links
+
+
