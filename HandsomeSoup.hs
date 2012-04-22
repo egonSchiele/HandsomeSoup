@@ -37,12 +37,6 @@ id_ = do
     val <- many1 alphaNum
     return ("id", val)
 
-universalSelector = do
-    string "*"
-    return univ
-
-univ = Selector "*" M.empty
-
 -- TODO the tag name should be optional, and if not given should default to
 -- "*"
 tagSelector = do
@@ -50,10 +44,14 @@ tagSelector = do
     attrs <- many1 (klass <|> id_) <|> (return [])
     return $ Selector tagName (M.fromList attrs)
 
-singleSelector = universalSelector <|> tagSelector
+attributeSelector = do
+    attrs <- many1 (klass <|> id_)
+    return $ Selector "*" (M.fromList attrs)
+
+singleSelector = tagSelector <|> attributeSelector
 
 selector :: ParsecT [Char] u I.Identity [[Selector]]
-selector = many1 tagSelector `sepBy` (spaces >> combinator >> spaces)
+selector = many1 singleSelector `sepBy` (spaces >> combinator >> spaces)
 
 css tag = case (parse selector "" tag) of
        Left err -> D.trace (show err) this
@@ -65,7 +63,7 @@ css tag = case (parse selector "" tag) of
 -- TODO remember to account for "*"! The universal selector.
 fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (make s) selectors
   where make (Selector name attrs) 
-          | name == "*" = multi this
+          | name == "*" = multi this >>> makeAttrs (M.toList attrs)
           | otherwise = multi $ hasName name >>> makeAttrs (M.toList attrs)
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
@@ -96,7 +94,7 @@ str = "h1.class, h2#someid"
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
-  links <- runX $ doc >>> css "*" //> getName
+  links <- runX $ doc >>> css "a.sister" >>> getName
   print links
 
 
