@@ -14,7 +14,9 @@ import qualified Data.Functor.Identity as I
 import qualified Debug.Trace as D
 
 -- if no tag name was given, sName will be set to '*'
-
+-- attrs are (attr name, attr value).
+-- if attr value is the empty string, we just check to
+-- make sure that the element has that attribute.
 data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] }
 
 instance Show Selector where
@@ -31,7 +33,6 @@ tag = many1 alphaNum
 pseudoClass :: ParsecT [Char] u I.Identity [Char]
 pseudoClass = char ':' >> many1 (alphaNum <|> oneOf "-")
 
--- tagAttribute = between (char '[') (char ']') (many1 alphaNum)
 
 -- | class selector, selects ".foo"
 klass :: ParsecT [Char] u I.Identity ([Char], [Char])
@@ -47,6 +48,16 @@ id_ = do
     val <- many1 alphaNum
     return ("id", val)
 
+tagAttribute = do
+    contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "="))
+    if '=' `elem` contents
+      then return $ splitOn '=' contents
+      else return (contents, "")
+
+-- like break, except don't keep the element you broke on.
+splitOn a xs = (first, tail second)
+    where (first, second) = break (==a) xs
+
 -- | universal selector, selects "*"
 universalSelector :: ParsecT [Char] u I.Identity String
 universalSelector = string "*"
@@ -56,12 +67,12 @@ universalSelector = string "*"
 tagSelector :: ParsecT [Char] u I.Identity Selector
 tagSelector = do
     tagName <- tag <|> universalSelector
-    attrs <- many1 (klass <|> id_) <|> (return [])
+    attrs <- many1 (klass <|> id_ <|> tagAttribute) <|> (return [])
     pseudo <- many1 pseudoClass <|> (return [])
     return $ Selector tagName attrs pseudo
 
 secondarySelector = do
-    attrs <- many1 (klass <|> id_)
+    attrs <- many1 (klass <|> id_ <|> tagAttribute)
     pseudo <- many1 pseudoClass <|> (return [])
     return $ Selector "*" attrs pseudo
 
@@ -114,7 +125,7 @@ str = "h1.class, h2#someid"
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
-  links <- runX $ doc >>> css "a.sister:first-child:after" >>> getName
+  links <- runX $ doc >>> css "a.sister[id=foo]:first-child:after" >>> getName
   print links
 
 
