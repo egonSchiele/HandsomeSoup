@@ -98,6 +98,7 @@ fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (ma
           | otherwise = (D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
+        makeAttr (name, "") = hasAttr name
         makeAttr (name, value) = hasAttrValue name (==value)
 
 
