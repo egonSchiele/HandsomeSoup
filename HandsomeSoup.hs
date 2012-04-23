@@ -25,6 +25,9 @@ import Control.Monad
 data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] } | Space | ChildOf | FollowedBy
 
 instance Show Selector where
+  show Space = "<space>"
+  show ChildOf = "<child of>"
+  show FollowedBy = "<followed by>"
   show (Selector name attrs pseudo) = show name ++ ":" ++ showMap attrs ++ ", " ++ show pseudo
       where showMap m = ("{" ++ (foldl (\acc (k,v) -> acc ++ (show k) ++ ":" ++ (show v) ++ ", ") "" m)) ++ "}"
 
@@ -110,23 +113,32 @@ followedBy = do
 simpleSelector :: ParsecT [Char] u I.Identity Selector
 simpleSelector = tagSelector <|> secondarySelector <|> space_ <|> childOf <|> followedBy
 
--- | One or more simple selectors separated by combinators
+-- | One or more simple selectors separated by combinators. 
+-- TODO this doesn't work: "html > body" because space is one of the
+-- combinators.
 selector :: ParsecT [Char] u I.Identity [[Selector]]
 selector = many1 simpleSelector `sepBy` (spaces >> string "," >> spaces)
 
 css tag = case (parse selector "" tag) of
        Left err -> D.trace (show err) this
-       Right x  -> fromSelectors (mconcat x)
+       Right x  -> fromSelectors x
 
 
 -- make an arrow from selectors
 
 -- TODO remember to account for "*"! The universal selector.
-fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make none s) selectors
-  where make acc sel@(Selector name attrs pseudo)
-          | name == "*" = acc <+> (multi this >>> makeAttrs attrs)
-          | otherwise = acc <+> ((D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs)
-        make acc Space = acc //> (D.trace "space" getChildren)
+-- TODO runX $ doc >>> css "html body" >>> getName FAILS
+
+-- works on a selector (i.e a list of simple selectors)
+fromSelectors sel@(s:selectors) = D.trace (show sel) $ foldl (\acc selector -> acc <+> _fromSelectors selector) (_fromSelectors s) selectors
+
+-- works on simple selectors and their combinators
+_fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make this s) selectors
+  where 
+        make acc sel@(Selector name attrs pseudo)
+          | name == "*" = acc >>> (multi this >>> makeAttrs attrs)
+          | otherwise = acc >>> ((D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs)
+        make acc Space = acc >>> multi (D.trace "space" getChildren)
         make acc ChildOf = acc >>> (D.trace "childof" getChildren)
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
