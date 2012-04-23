@@ -98,24 +98,26 @@ secondarySelector = do
     return $ Selector "*" attrs pseudo
 
 space_ = do
-    string " "
+    many1 $ string " "
     return Space
 
 childOf = do
+    spaces
     string ">"
+    spaces
     return ChildOf
 
 followedBy = do
+    spaces
     string "+"
+    spaces
     return FollowedBy
 
 -- | A simple selector is either a type selector or universal selector followed immediately by zero or more attribute selectors, ID selectors, or pseudo-classes, in any order.
 simpleSelector :: ParsecT [Char] u I.Identity Selector
-simpleSelector = tagSelector <|> secondarySelector <|> space_ <|> childOf <|> followedBy
+simpleSelector = tagSelector <|> secondarySelector <|> try childOf <|> try followedBy <|> space_
 
 -- | One or more simple selectors separated by combinators. 
--- TODO this doesn't work: "html > body" because space is one of the
--- combinators.
 selector :: ParsecT [Char] u I.Identity [[Selector]]
 selector = many1 simpleSelector `sepBy` (spaces >> string "," >> spaces)
 
@@ -173,5 +175,3 @@ main = do
   let doc = parseHtml content
   links <- runX $ doc >>> css "p a" >>> getName
   print links
-
-
