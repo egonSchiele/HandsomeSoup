@@ -12,11 +12,16 @@ import qualified Data.Map as M
 import Data.Monoid (mconcat)
 import qualified Data.Functor.Identity as I
 import qualified Debug.Trace as D
+import Data.List
+import Control.Monad
 
 -- if no tag name was given, sName will be set to '*'
 -- attrs are (attr name, attr value).
 -- if attr value is the empty string, we just check to
 -- make sure that the element has that attribute.
+-- if the attr value is prefixed with a '~', we treat
+-- that attribute as a list of words separated by a space
+-- and make sure that at least one of those words matches.
 data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] }
 
 instance Show Selector where
@@ -33,13 +38,12 @@ tag = many1 alphaNum
 pseudoClass :: ParsecT [Char] u I.Identity [Char]
 pseudoClass = char ':' >> many1 (alphaNum <|> oneOf "-")
 
-
 -- | class selector, selects ".foo"
 klass :: ParsecT [Char] u I.Identity ([Char], [Char])
 klass = do
     char '.' 
     val <- many1 alphaNum
-    return ("class", val)
+    return ("class", '~':val)
 
 -- | id selector, selects "#foo"
 id_ :: ParsecT [Char] u I.Identity ([Char], [Char])
@@ -48,15 +52,26 @@ id_ = do
     val <- many1 alphaNum
     return ("id", val)
 
-tagAttribute = do
-    contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "="))
-    if '=' `elem` contents
-      then return $ splitOn '=' contents
-      else return (contents, "")
+-- | selects attributes, like "[id]" (element must have id) or "[id=foo]" (element must have id foo).
+tagAttribute :: ParsecT [Char] u I.Identity ([Char], [Char])
+tagAttribute = 
+    let f contents
+          -- prefix the value with "~" before returning
+          | "~=" `isInfixOf` contents = return $ (\(a, b) -> (a, '~':b)) $ splitOn "~=" contents
+          | '=' `elem` contents = return $ splitOn "=" contents
+          | otherwise = return (contents, "")
+    in do
+      contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "~="))
+      f contents
 
 -- like break, except don't keep the element you broke on.
-splitOn a xs = (first, tail second)
-    where (first, second) = break (==a) xs
+-- and it takes a list as the thing to break on.
+splitOn a xs = _splitOn a "" xs
+
+_splitOn _ begin [] = (begin, [])
+_splitOn a begin end@(x:xs)
+  | a `isPrefixOf` end = (begin, drop (length a) end)
+  | otherwise = _splitOn a (begin ++ [x]) xs
 
 -- | universal selector, selects "*"
 universalSelector :: ParsecT [Char] u I.Identity String
@@ -99,6 +114,7 @@ fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (ma
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
         makeAttr (name, "") = hasAttr name
+        makeAttr (name, '~':value) = hasAttrValue name (elem value . words)
         makeAttr (name, value) = hasAttrValue name (==value)
 
 
@@ -126,7 +142,7 @@ str = "h1.class, h2#someid"
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
-  links <- runX $ doc >>> css "a.sister[id=foo]:first-child:after" >>> getName
+  links <- runX $ doc >>> css "a[class=sister]" >>> getName
   print links
 
 
