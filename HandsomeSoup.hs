@@ -132,16 +132,16 @@ css tag = case (parse selector "" tag) of
 -- TODO runX $ doc >>> css "html body" >>> getName FAILS
 
 -- works on a selector (i.e a list of simple selectors)
-fromSelectors sel@(s:selectors) = D.trace (show sel) $ foldl (\acc selector -> acc <+> _fromSelectors selector) (_fromSelectors s) selectors
+fromSelectors sel@(s:selectors) = foldl (\acc selector -> acc <+> _fromSelectors selector) (_fromSelectors s) selectors
 
 -- works on simple selectors and their combinators
 _fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make this s) selectors
   where 
         make acc sel@(Selector name attrs pseudo)
           | name == "*" = acc >>> (multi this >>> makeAttrs attrs)
-          | otherwise = acc >>> ((D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs)
-        make acc Space = acc >>> multi (D.trace "space" getChildren)
-        make acc ChildOf = acc >>> (D.trace "childof" getChildren)
+          | otherwise = acc >>> (multi $ hasName name >>> makeAttrs attrs)
+        make acc Space = acc >>> multi getChildren
+        make acc ChildOf = acc >>> getChildren
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
         makeAttr (name, "") = hasAttr name

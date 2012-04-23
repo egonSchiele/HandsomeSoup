@@ -1,4 +1,3 @@
-- remove trace statements
 - validate input
 - write tests
 - break out css parser into it's own library
