@@ -22,18 +22,21 @@ import Control.Monad
 -- if the attr value is prefixed with a '~', we treat
 -- that attribute as a list of words separated by a space
 -- and make sure that at least one of those words matches.
-data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] }
+data Selector = Selector { sName :: String, sAttrs :: [(String,String)], sPseudoClasses :: [String] } | Space | ChildOf | FollowedBy
 
 instance Show Selector where
   show (Selector name attrs pseudo) = show name ++ ":" ++ showMap attrs ++ ", " ++ show pseudo
-      where showMap m = (init.init $ "{" ++ (foldl (\acc (k,v) -> acc ++ (show k) ++ ":" ++ (show v) ++ ", ") "" m)) ++ "}"
+      where showMap m = ("{" ++ (foldl (\acc (k,v) -> acc ++ (show k) ++ ":" ++ (show v) ++ ", ") "" m)) ++ "}"
 
+combinator :: ParsecT [Char] u I.Identity Char
 combinator = char ' ' <|> char '+' <|> char '>' <|> char ','
 
 -- | selects a tag name, like "h1"
 tag :: ParsecT [Char] u I.Identity [Char]
 tag = many1 alphaNum
 
+-- TODO match this syntax:
+-- E:lang(c)	Matches element of type E if it is in (human) language c (the document language specifies how language is determined).
 -- | selects a pseudo class, like ":link", ":first-child" etc.
 pseudoClass :: ParsecT [Char] u I.Identity [Char]
 pseudoClass = char ':' >> many1 (alphaNum <|> oneOf "-")
@@ -91,13 +94,25 @@ secondarySelector = do
     pseudo <- many1 pseudoClass <|> (return [])
     return $ Selector "*" attrs pseudo
 
+space_ = do
+    string " "
+    return Space
+
+childOf = do
+    string ">"
+    return ChildOf
+
+followedBy = do
+    string "+"
+    return FollowedBy
+
 -- | A simple selector is either a type selector or universal selector followed immediately by zero or more attribute selectors, ID selectors, or pseudo-classes, in any order.
 simpleSelector :: ParsecT [Char] u I.Identity Selector
-simpleSelector = tagSelector <|> secondarySelector
+simpleSelector = tagSelector <|> secondarySelector <|> space_ <|> childOf <|> followedBy
 
 -- | One or more simple selectors separated by combinators
 selector :: ParsecT [Char] u I.Identity [[Selector]]
-selector = many1 simpleSelector `sepBy` (spaces >> combinator >> spaces)
+selector = many1 simpleSelector `sepBy` (spaces >> string "," >> spaces)
 
 css tag = case (parse selector "" tag) of
        Left err -> D.trace (show err) this
@@ -107,10 +122,12 @@ css tag = case (parse selector "" tag) of
 -- make an arrow from selectors
 
 -- TODO remember to account for "*"! The universal selector.
-fromSelectors (s:selectors) = foldl (\acc selector -> acc <+> make selector) (make s) selectors
-  where make sel@(Selector name attrs pseudo) 
-          | name == "*" = multi this >>> makeAttrs attrs
-          | otherwise = (D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs
+fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make none s) selectors
+  where make acc sel@(Selector name attrs pseudo)
+          | name == "*" = acc <+> (multi this >>> makeAttrs attrs)
+          | otherwise = acc <+> ((D.trace $ show sel) $ multi $ hasName name >>> makeAttrs attrs)
+        make acc Space = acc //> (D.trace "space" getChildren)
+        make acc ChildOf = acc >>> (D.trace "childof" getChildren)
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
         makeAttr (name, "") = hasAttr name
@@ -142,7 +159,7 @@ str = "h1.class, h2#someid"
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
-  links <- runX $ doc >>> css "a[class=sister]" >>> getName
+  links <- runX $ doc >>> css "p a" >>> getName
   print links
 
 
