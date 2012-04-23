@@ -170,8 +170,10 @@ parseHtml = readString [withParseHTML yes, withWarnings no]
 -- str = "h1.class, h2#someid, h3[lang], h4:first-child > h5, h6 h7"
 str = "h1.class, h2#someid"
 
+{-
 main = do
   content <- readFile "test.html"
   let doc = parseHtml content
   links <- runX $ doc >>> css "p a" >>> getName
   print links
+-}
