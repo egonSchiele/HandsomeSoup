@@ -42,7 +42,7 @@ Here are some valid selectors:
     doc <<< css "img[width=400]"
     doc <<< css "a[class~=bar]"
 
-# Easily get attributes using `(!)`
+### Easily get attributes using `(!)`
 
     doc <<< css "img" ! "src"
     doc <<< css "a" ! "href"
