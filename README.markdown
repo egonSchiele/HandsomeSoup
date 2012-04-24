@@ -8,6 +8,10 @@ It is built on top of [HXT](http://www.fh-wedel.de/~si/HXmlToolbox/) and adds a 
 
 Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to be a complete CSS2 parser for HXT (it is very close to this right now).
 
+## Install
+
+    cabal install HandsomeSoup
+
 ## Example
 
 [Nokogiri](http://nokogiri.org/), the HTML parser for Ruby, has an example showing how to scrape Google search results. This is easy in HandsomeSoup:

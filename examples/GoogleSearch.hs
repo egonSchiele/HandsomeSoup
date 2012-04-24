@@ -1,5 +1,5 @@
 module GoogleSearch where
-import HandsomeSoup
+import Text.HandsomeSoup
 import Text.XML.HXT.Core
 import Control.Monad
 
