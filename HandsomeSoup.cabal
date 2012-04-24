@@ -40,7 +40,7 @@ Build-type:          Simple
 
 -- Extra files to be distributed with the package, such as examples or
 -- a README.
-Extra-source-files: README.markdown, examples/*.hs
+Extra-source-files: README.markdown
 
 -- Constraint on the version of Cabal needed to build this package.
 Cabal-version:       >=1.2
@@ -51,7 +51,7 @@ Library
   Exposed-modules:     Text.HandsomeSoup, Text.CSS.Parser
   
   -- Packages needed in order to build this package.
-  Build-depends: base, transformers, HTTP, parsec, containers, mtl, MaybeT, hxt, network
+  Build-depends: base < 5, transformers, HTTP, parsec, containers, mtl, MaybeT, hxt, network
   
   -- Modules not exported by this package.
   Other-modules: Text.CSS.Utils
