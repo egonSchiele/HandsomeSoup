@@ -23,33 +23,33 @@ pp (Selector name attrs pseudo) = show name ++ ":" ++ showMap attrs ++ ", " ++ s
 
 {- TYPE SELECTORS FOLLOW -}
 
--- | selects a tag name, like "h1"
+-- | selects a tag name, like @ h1 @
 typeSelector :: ParsecT [Char] u I.Identity [Char]
 typeSelector = many1 alphaNum
 
--- | universal selector, selects "*"
+-- | universal selector, selects @ * @
 universalSelector :: ParsecT [Char] u I.Identity String
 universalSelector = string "*"
 
 {- SECONDARY SELECTORS FOLLOW -}
 
--- | selects a pseudo-element or pseudo-class, like ":link", ":first-child" etc.
+-- | selects a pseudo-element or pseudo-class, like @ :link @, @ :first-child @ etc.
 pseudoSelector :: ParsecT [Char] u I.Identity [Char]
 pseudoSelector = char ':' >> many1 (alphaNum <|> oneOf "-()")
 
--- | class selector, selects ".foo"
+-- | class selector, selects @ .foo @
 classSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 classSelector = do
     val <- char '.' >> many1 alphaNum
     return ("class", '~':val)
 
--- | id selector, selects "#foo"
+-- | id selector, selects @ #foo @
 idSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 idSelector = do
     val <- char '#' >> many1 alphaNum
     return ("id", val)
 
--- | selects attributes, like "[id]" (element must have id) or "[id=foo]" (element must have id foo).
+-- | selects attributes, like @ [id] @ (element must have id) or @ [id=foo] @ (element must have id foo).
 attributeSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 attributeSelector = do
       contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "~="))
@@ -79,7 +79,7 @@ followedBy = do
 {- SIMPLE SELECTORS FOLLOW -}
 
 -- | selects a tagname followed by one or more secondary selectors
--- | example: "a.foo", "*#hello", "h1" etc
+-- example: @ a.foo @, @ *#hello @, @ h1 @ etc
 simpleSelectorTag :: ParsecT [Char] u I.Identity Selector
 simpleSelectorTag = do
     tagName <- typeSelector <|> universalSelector
@@ -88,8 +88,8 @@ simpleSelectorTag = do
     return $ Selector tagName attrs pseudo
 
 -- | selects one or more secondary selectors
--- | and automatically prepends the universal selector to them.
--- | example: ".foo", "#hello" etc
+-- and automatically prepends the universal selector to them.
+-- example: @ .foo @, @ #hello @ etc
 simpleSelectorNoTag = do
     attrs <- secondarySelector
     pseudo <- many1 pseudoSelector <|> return []
