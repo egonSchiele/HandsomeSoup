@@ -1,6 +1,6 @@
 # HandsomeSoup
 
-Current Status: very very pre-alpha. Usable but buggy.
+Current Status: Usable but untested (tests coming soon! See todo list).
 
 HandsomeSoup is the library I wish I had when I started parsing HTML in Haskell.
 
