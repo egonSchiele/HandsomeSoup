@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Handsomesoup : Work with HTML more easily in HXT" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Handsomesoup</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/egonSchiele/HandsomeSoup">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Handsomesoup</h1>
+          <h2 id="project_tagline">Work with HTML more easily in HXT</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/egonSchiele/HandsomeSoup/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/egonSchiele/HandsomeSoup/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>HandsomeSoup</h1>
+
+<p>HandsomeSoup is the library I wish I had when I started parsing HTML in Haskell.</p>
+
+<p>It is built on top of <a href="http://www.fh-wedel.de/%7Esi/HXmlToolbox/">HXT</a> and adds a few functions that make is easier to work with HTML.</p>
+
+<p>Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to be a complete CSS2 parser for HXT (it is very close to this right now).</p>
+
+<h2>Install</h2>
+
+<pre><code>cabal install HandsomeSoup
+</code></pre>
+
+<h2>Example</h2>
+
+<p><a href="http://nokogiri.org/">Nokogiri</a>, the HTML parser for Ruby, has an example showing how to scrape Google search results. This is easy in HandsomeSoup:</p>
+
+<pre><code>main = do
+    doc &lt;- fromUrl "http://www.google.com/search?q=egon+schiele"
+    links &lt;- runX $ doc &gt;&gt;&gt; css "h3.r a" ! "href"
+    mapM_ putStrLn links
+</code></pre>
+
+<h2>What can HandsomeSoup do for you?</h2>
+
+<h3>Easily parse an online page using <code>fromUrl</code>
+</h3>
+
+<pre><code>doc &lt;- fromUrl "http://example.com"
+</code></pre>
+
+<h3>Or a local page using <code>parseHtml</code>
+</h3>
+
+<pre><code>contents &lt;- readFile [filename]
+doc &lt;- parseHtml contents
+</code></pre>
+
+<h3>Easily extract elements using <code>css</code>
+</h3>
+
+<p>Here are some valid selectors:</p>
+
+<pre><code>doc &lt;&lt;&lt; css "a"
+doc &lt;&lt;&lt; css "*"
+doc &lt;&lt;&lt; css "a#link1"
+doc &lt;&lt;&lt; css "a.foo"
+doc &lt;&lt;&lt; css "p &gt; a"
+doc &lt;&lt;&lt; css "#container h1"
+doc &lt;&lt;&lt; css "img[width]"
+doc &lt;&lt;&lt; css "img[width=400]"
+doc &lt;&lt;&lt; css "a[class~=bar]"
+</code></pre>
+
+<h3>Easily get attributes using <code>(!)</code>
+</h3>
+
+<pre><code>doc &lt;&lt;&lt; css "img" ! "src"
+doc &lt;&lt;&lt; css "a" ! "href"
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Handsomesoup maintained by <a href="https://github.com/egonSchiele">egonSchiele</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
