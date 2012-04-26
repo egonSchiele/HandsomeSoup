@@ -1,4 +1,3 @@
 - validate input
 - followedby combinator doesn't work yet: how to do siblings in hxt?
-- :first-child pseudoclass doesn't work yet: how to do this in hxt?
 - Go through this: http://www.w3.org/TR/CSS2/selector.html. Did I miss anything?

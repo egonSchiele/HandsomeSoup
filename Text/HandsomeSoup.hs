@@ -59,12 +59,15 @@ fromSelectors sel@(s:selectors) = foldl (\acc selector -> acc <+> _fromSelectors
 _fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make this s) selectors
   where 
         make acc sel@(Selector name attrs pseudo)
-          | name == "*" = acc >>> (multi this >>> makeAttrs attrs)
-          | otherwise = acc >>> (multi $ hasName name >>> makeAttrs attrs)
-        make acc Space = acc >>> multi getChildren
-        make acc ChildOf = acc >>> getChildren
+          | name == "*" = acc >>> ((multi this >>> makeAttrs attrs) >>. makePseudos pseudo)
+          | otherwise = acc >>> ((multi $ hasName name >>> makeAttrs attrs) >>. makePseudos pseudo)
+        make acc Space = acc >>> getChildren
+        make acc ChildOf = acc >>> getChildren >>> processChildren none
         makeAttrs (a:attrs) = foldl (\acc attr -> acc >>> makeAttr attr) (makeAttr a) attrs
         makeAttrs [] = this
         makeAttr (name, "") = hasAttr name
         makeAttr (name, '~':value) = hasAttrValue name (elem value . words)
         makeAttr (name, value) = hasAttrValue name (==value)
+        makePseudos (p:pseudos) = foldl (\acc pseudo -> acc >>> makePseudo pseudo) (makePseudo p) pseudos
+        makePseudos [] = id
+        makePseudo "first-child" = take 1
