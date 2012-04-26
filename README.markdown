@@ -50,3 +50,13 @@ Here are some valid selectors:
 
     doc <<< css "img" ! "src"
     doc <<< css "a" ! "href"
+
+## Docs
+
+Find [Haddock docs on Hackage](http://hackage.haskell.org/package/HandsomeSoup).
+
+I also wrote [The Complete Guide To Parsing HXT With Haskell](http://adit.io/posts/2012-04-14-working_with_HTML_in_haskell.html).
+
+## Credits
+
+Made by [Adit](http://adit.io).
