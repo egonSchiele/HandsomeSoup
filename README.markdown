@@ -1,12 +1,12 @@
 # HandsomeSoup
 
-Current Status: Usable but untested (tests coming soon! See todo list).
+Current Status: Usable. Please file bugs!
 
 HandsomeSoup is the library I wish I had when I started parsing HTML in Haskell.
 
 It is built on top of [HXT](http://www.fh-wedel.de/~si/HXmlToolbox/) and adds a few functions that make is easier to work with HTML.
 
-Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to be a complete CSS2 parser for HXT (it is very close to this right now).
+Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to be a complete CSS2 selector parser for HXT.
 
 ## Install
 
@@ -30,7 +30,7 @@ Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to b
 ### Or a local page using `parseHtml`
 
     contents <- readFile [filename]
-    doc <- parseHtml contents
+    let doc = parseHtml contents
 
 ### Easily extract elements using `css`
 
@@ -41,10 +41,12 @@ Here are some valid selectors:
     doc <<< css "a#link1"
     doc <<< css "a.foo"
     doc <<< css "p > a"
+    doc <<< css "p strong"
     doc <<< css "#container h1"
     doc <<< css "img[width]"
     doc <<< css "img[width=400]"
     doc <<< css "a[class~=bar]"
+    doc <<< css "a:first-child"
 
 ### Easily get attributes using `(!)`
 
