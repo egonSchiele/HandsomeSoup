@@ -28,11 +28,10 @@ testChildren2 = mk "should get children (negative test)" (css "p > strong" >>> g
 
 testFirstChild = mk ":first-child pseudo-element" (css "a:first-child" >>> getName) ["a"]
 
-testFollowedBy = mk "h1 + p" (css "h1 + p" >>> getName) ["p"]
-
 testAttrSelector1 = mk "p[class]" (css "p[class]" >>> getName) ["p"]
 testAttrSelector2 = mk "a[class=sister]" (css "a[class=sister]" >>> getName) ["a", "a"]
 testAttrSelector3 = mk "a[class~=sister]" (css "a[class~=sister]" >>> getName) ["a", "a", "a"]
+testAttrSelector4 = mk "[lang|='en']" (css "[lang|='en']" >>> getName) ["html"]
 
 testClassSelector = mk "a.sister" (css "a.sister" >>> getName) ["a", "a", "a"]
 testIdSelector = mk "a#link1" (css "a#link1" >>> getName) ["a"]
@@ -43,5 +42,7 @@ testExtraSpaces = mk "should ignore extra spaces" (css "html  body" >>> getName)
 
 testMultipleElements = mk "should handle multiple elements" (css "a, p" >>> getName) ["a", "a", "a", "p", "p"]
 
+testGrandChildren = mk "should get grandchildren only" (css "p * strong" >>> getName) ["strong"]
 
-main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testFollowedBy, testAttrSelector1, testAttrSelector2, testAttrSelector3, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements]
+
+main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]

@@ -67,7 +67,14 @@ _fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make 
         makeAttrs [] = this
         makeAttr (name, "") = hasAttr name
         makeAttr (name, '~':value) = hasAttrValue name (elem value . words)
+        makeAttr (name, '|':value) = hasAttrValue name (headMatch value)
         makeAttr (name, value) = hasAttrValue name (==value)
         makePseudos (p:pseudos) = foldl (\acc pseudo -> acc >>> makePseudo pseudo) (makePseudo p) pseudos
         makePseudos [] = id
         makePseudo "first-child" = take 1
+
+-- | Used internally to match attribute selectors like @ [att|=val] @.
+-- From: http://www.w3.org/TR/CSS2/selector.html
+-- "Represents an element with the att attribute, its value either being exactly "val" or beginning with "val" immediately followed by '-'".
+headMatch value attrValue = value == attrValue || value `isPrefixOf` attrValue
+    where first = head . words $ attrValue

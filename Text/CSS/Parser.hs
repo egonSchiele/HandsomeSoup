@@ -4,14 +4,20 @@ import Text.Parsec
 import qualified Data.Functor.Identity as I
 import Data.List
 import Text.CSS.Utils
-
 -- if no tag name was given, sName will be set to '*'
 -- attrs are (attr name, attr value).
 -- if attr value is the empty string, we just check to
 -- make sure that the element has that attribute.
+--
 -- if the attr value is prefixed with a '~', we treat
 -- that attribute as a list of words separated by a space
 -- and make sure that at least one of those words matches.
+-- 
+-- if the attr value is prefixed with a `|`, the value must
+-- be exactly val or start with val immediately followed by a '-'.
+-- This is primarily intended to allow language subcode matches.
+-- Example: [lang|="en"] matches "en", "en-US", etc.
+-- From: http://www.w3.org/TR/CSS2/selector.html.
 data Selector = Selector { sName :: String, sAttrs :: [(String,String)], spseudoSelectores :: [String] } | Space | ChildOf | FollowedBy deriving (Show)
 
 -- pretty printers for debugging
@@ -52,12 +58,16 @@ idSelector = do
 -- | selects attributes, like @ [id] @ (element must have id) or @ [id=foo] @ (element must have id foo).
 attributeSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 attributeSelector = do
-      contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "~="))
+      _contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "|~=\"'"))
+      -- remove quotes
+      let contents = filter (\c -> c /= '"' && c /= '\'') _contents
       if "~=" `isInfixOf` contents 
           then return $ (\(a, b) -> (a, '~':b)) $ splitOn "~=" contents
-          else if '=' `elem` contents
-               then return $ splitOn "=" contents
-               else return (contents, "")
+          else if "|=" `isInfixOf` contents 
+              then return $ (\(a, b) -> (a, '|':b)) $ splitOn "|=" contents
+              else if '=' `elem` contents
+                   then return $ splitOn "=" contents
+                   else return (contents, "")
 
 -- | selector for everything after the type except pseudoSelectores
 secondarySelector = many1 (classSelector <|> idSelector <|> attributeSelector)

@@ -1,3 +1,7 @@
 - validate input
-- followedby combinator doesn't work yet: how to do siblings in hxt?
-- Go through this: http://www.w3.org/TR/CSS2/selector.html. Did I miss anything?
+
+# Things that don't work yet:
+
+`p + a` should get all `a` tags preceded by `p` tags.
+`p:first-line` should get the first line of all paragraphs.
+`p:first-letter` should get the first character of all paragraphs.
