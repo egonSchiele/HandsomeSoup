@@ -19,12 +19,11 @@ mk msg action expected = TestCase $ do
 
 testSingleTypeSelector = mk "should get all links" (css "a" >>> getName) ["a", "a", "a"]
 
-testUniversalSelector = mk "should get every element" (css "*" >>> getName) ["/","html","head","title","body","h1","b","p","a","strong","a","a","p"]
+testUniversalSelector = mk "should get every element" (css "*" >>> getName) ["/","html","head","title","body","h1","b","p","strong","a","strong","a","a","p"]
 
-testDescendents = mk "should get descendents" (css "p strong" >>> getName) ["strong"]
-
-testChildren = mk "should get children" (css "a > strong" >>> getName) ["strong"]
-testChildren2 = mk "should get children (negative test)" (css "p > strong" >>> getName) []
+testDescendents = mk "should get descendents" (css "p strong" >>> getName) ["strong", "strong"]
+testChildren = mk "should get children (negative test)" (css "p > strong" >>> getName) ["strong"]
+testChildren2 = mk "should get children" (css "a > strong" >>> getName) ["strong"]
 
 testFirstChild = mk ":first-child pseudo-element" (css "a:first-child" >>> getName) ["a"]
 
