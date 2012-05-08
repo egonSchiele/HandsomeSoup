@@ -44,4 +44,4 @@ testMultipleElements = mk "should handle multiple elements" (css "a, p" >>> getN
 testGrandChildren = mk "should get grandchildren only" (css "p * strong" >>> getName) ["strong"]
 
 
-main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]
+main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testAttrSelector4, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]
