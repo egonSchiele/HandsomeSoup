@@ -32,6 +32,7 @@ testAttrSelector2 = mk "a[class=sister]" (css "a[class=sister]" >>> getName) ["a
 testAttrSelector3 = mk "a[class~=sister]" (css "a[class~=sister]" >>> getName) ["a", "a", "a"]
 testAttrSelector4 = mk "[lang|='en']" (css "[lang|='en']" >>> getName) ["html"]
 testAttrSelector5 = mk "div[class=curr_lang]" (css "div[class=curr_lang]" >>> getName) ["div"]
+testAttrSelector6 = mk "div[data-original=test]" (css "div[data-original=test]" >>> getName) ["p"]
 
 testClassSelector = mk "a.sister" (css "a.sister" >>> getName) ["a", "a", "a"]
 testIdSelector = mk "a#link1" (css "a#link1" >>> getName) ["a"]
@@ -45,4 +46,4 @@ testMultipleElements = mk "should handle multiple elements" (css "a, p" >>> getN
 testGrandChildren = mk "should get grandchildren only" (css "p * strong" >>> getName) ["strong"]
 
 
-main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testAttrSelector4, testAttrSelector5, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]
+main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testAttrSelector4, testAttrSelector5, testAttrSelector6, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]
