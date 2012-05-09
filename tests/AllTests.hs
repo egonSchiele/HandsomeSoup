@@ -32,7 +32,7 @@ testAttrSelector2 = mk "a[class=sister]" (css "a[class=sister]" >>> getName) ["a
 testAttrSelector3 = mk "a[class~=sister]" (css "a[class~=sister]" >>> getName) ["a", "a", "a"]
 testAttrSelector4 = mk "[lang|='en']" (css "[lang|='en']" >>> getName) ["html"]
 testAttrSelector5 = mk "div[class=curr_lang]" (css "div[class=curr_lang]" >>> getName) ["div"]
-testAttrSelector6 = mk "div[data-original=test]" (css "div[data-original=test]" >>> getName) ["p"]
+testAttrSelector6 = mk "p[data-original=test]" (css "p[data-original=test]" >>> getName) ["p"]
 
 testClassSelector = mk "a.sister" (css "a.sister" >>> getName) ["a", "a", "a"]
 testIdSelector = mk "a#link1" (css "a#link1" >>> getName) ["a"]
