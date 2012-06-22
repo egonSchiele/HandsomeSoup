@@ -2,48 +2,73 @@ module AllTests where
 import Text.HandsomeSoup
 import Text.XML.HXT.Core
 import Control.Arrow
-import Test.HUnit
 import qualified Data.Tree.NTree.TypeDefs as T
+import System.IO.Unsafe
 
-t msg a b = TestCase $ assertEqual msg a b
+import Test.Hspec.Monadic
 
 file = do
     contents <- readFile "test.html"
     return $ parseHtml contents
 
 -- mk :: (Show a, Eq a, ArrowXml b) => String -> b (T.NTree XNode) (T.NTree XNode) -> a -> Test
-mk msg action expected = TestCase $ do
+run action = unsafePerformIO $ do
       doc <- file
-      actual <- runX $ doc >>> action
-      assertEqual msg expected actual
+      runX $ doc >>> action
 
-testSingleTypeSelector = mk "should get all links" (css "a" >>> getName) ["a", "a", "a"]
+main = hspec $ do
+  describe "tests" $ do
+    it "should get all links" $
+      run (css "a" >>> getName) == ["a", "a", "a"]
 
-testUniversalSelector = mk "should get every element" (css "*" >>> getName) ["/","html","head","title","body","h1","b","p","strong","a","strong","a","a","p","div","p"]
+    it "should get every element" $
+      run (css "*" >>> getName) == ["/","html","head","title","body","h1","b","p","strong","a","strong","a","a","p","div","p"]
 
-testDescendents = mk "should get descendents" (css "p strong" >>> getName) ["strong", "strong"]
-testChildren = mk "should get children (negative test)" (css "p > strong" >>> getName) ["strong"]
-testChildren2 = mk "should get children" (css "a > strong" >>> getName) ["strong"]
+    it "should get descendents" $
+      run (css "p strong" >>> getName) == ["strong", "strong"]
 
-testFirstChild = mk ":first-child pseudo-element" (css "a:first-child" >>> getName) ["a"]
+    it "should get children (negative test)" $
+      run (css "p > strong" >>> getName) == ["strong"]
 
-testAttrSelector1 = mk "p[class]" (css "p[class]" >>> getName) ["p"]
-testAttrSelector2 = mk "a[class=sister]" (css "a[class=sister]" >>> getName) ["a", "a"]
-testAttrSelector3 = mk "a[class~=sister]" (css "a[class~=sister]" >>> getName) ["a", "a", "a"]
-testAttrSelector4 = mk "[lang|='en']" (css "[lang|='en']" >>> getName) ["html"]
-testAttrSelector5 = mk "div[class=curr_lang]" (css "div[class=curr_lang]" >>> getName) ["div"]
-testAttrSelector6 = mk "p[data-original=test]" (css "p[data-original=test]" >>> getName) ["p"]
+    it "should get children" $
+      run (css "a > strong" >>> getName) == ["strong"]
 
-testClassSelector = mk "a.sister" (css "a.sister" >>> getName) ["a", "a", "a"]
-testIdSelector = mk "a#link1" (css "a#link1" >>> getName) ["a"]
+    it ":first-child pseudo-element" $
+      run (css "a:first-child" >>> getName) == ["a"]
 
-testIdAndClass = mk "should work even when both are specified" (css "a.sister#link1" >>> getName) ["a"]
+    describe "attribute selector" $ do
+      it "no value" $
+        run (css "p[class]" >>> getName) == ["p"]
 
-testExtraSpaces = mk "should ignore extra spaces" (css "html  body" >>> getName) ["body"]
+      it "exact value" $
+        run (css "a[class=sister]" >>> getName) == ["a", "a"]
 
-testMultipleElements = mk "should handle multiple elements" (css "a, p" >>> getName) ["a","a","a","p","p","p"]
+      it "inexact value" $
+        run (css "a[class~=sister]" >>> getName) == ["a", "a", "a"]
 
-testGrandChildren = mk "should get grandchildren only" (css "p * strong" >>> getName) ["strong"]
+      it "using |" $
+        run (css "[lang|='en']" >>> getName) == ["html"]
 
+      it "underscore in attribute selector should work" $
+        run (css "div[class=curr_lang]" >>> getName) == ["div"]
 
-main = runTestTT $ TestList [testSingleTypeSelector, testUniversalSelector, testDescendents, testChildren, testChildren2, testFirstChild, testAttrSelector1, testAttrSelector2, testAttrSelector3, testAttrSelector4, testAttrSelector5, testAttrSelector6, testClassSelector, testIdSelector, testIdAndClass, testExtraSpaces, testMultipleElements, testGrandChildren]
+      it "dash in attribute selector should work" $
+        run (css "p[data-original=test]" >>> getName) == ["p"]
+
+    it "class selector" $
+      run (css "a.sister" >>> getName) == ["a", "a", "a"]
+
+    it "id selector" $
+      run (css "a#link1" >>> getName) == ["a"]
+
+    it "both class and id selectors" $
+      run (css "a.sister#link1" >>> getName) == ["a"]
+
+    it "should ignore extra spaces" $
+      run (css "html  body" >>> getName) == ["body"]
+
+    it "should handle multiple elements" $
+      run (css "a, p" >>> getName) == ["a","a","a","p","p","p"]
+
+    it "should get grandchildren only" $
+      run (css "p * strong" >>> getName) == ["strong"]

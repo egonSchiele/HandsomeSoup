@@ -58,7 +58,7 @@ idSelector = do
 -- | selects attributes, like @ [id] @ (element must have id) or @ [id=foo] @ (element must have id foo).
 attributeSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 attributeSelector = do
-      _contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "-_|~=\"'"))
+      _contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "/-_|~=\"'"))
       -- remove quotes
       let contents = filter (\c -> c /= '"' && c /= '\'') _contents
       if "~=" `isInfixOf` contents 
