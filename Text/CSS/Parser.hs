@@ -42,7 +42,7 @@ nmchar  = alphaNum <|> oneOf "_-"
 
 -- | selects a tag name, like @ h1 @
 typeSelector :: ParsecT [Char] u I.Identity [Char]
-typeSelector = many1 alphaNum
+typeSelector = many1 (alphaNum <|> oneOf "_-")
 
 -- | universal selector, selects @ * @
 universalSelector :: ParsecT [Char] u I.Identity String
