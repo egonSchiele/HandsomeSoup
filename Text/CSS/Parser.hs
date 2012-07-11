@@ -3,6 +3,7 @@ module Text.CSS.Parser where
 import Text.Parsec
 import qualified Data.Functor.Identity as I
 import Data.List
+import Data.Maybe
 import Text.CSS.Utils
 -- if no tag name was given, sName will be set to '*'
 -- attrs are (attr name, attr value).
@@ -27,6 +28,16 @@ pp FollowedBy = "<followed by>"
 pp (Selector name attrs pseudo) = show name ++ ":" ++ showMap attrs ++ ", " ++ show pseudo
     where showMap m = ("{" ++ (foldl (\acc (k,v) -> acc ++ (show k) ++ ":" ++ (show v) ++ ", ") "" m)) ++ "}"
 
+{- Some lexeme parsers -}
+ident :: ParsecT [Char] u I.Identity String
+ident = do c1 <- optionMaybe (char '-')
+           c2 <- nmstart
+           cs <- many nmchar
+           return $ concat [maybeToList c1, [c2], cs]
+
+nmstart = alphaNum <|> char '_'
+nmchar  = alphaNum <|> oneOf "_-"
+
 {- TYPE SELECTORS FOLLOW -}
 
 -- | selects a tag name, like @ h1 @
@@ -46,13 +57,13 @@ pseudoSelector = char ':' >> many1 (alphaNum <|> oneOf "-()")
 -- | class selector, selects @ .foo @
 classSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 classSelector = do
-    val <- char '.' >> many1 alphaNum
+    val <- char '.' >> ident
     return ("class", '~':val)
 
 -- | id selector, selects @ #foo @
 idSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 idSelector = do
-    val <- char '#' >> many1 alphaNum
+    val <- char '#' >> many1 nmchar
     return ("id", val)
 
 -- | selects attributes, like @ [id] @ (element must have id) or @ [id=foo] @ (element must have id foo).
