@@ -54,6 +54,9 @@ main = hspec $ do
     it "class selector" $
       run (css "a.sister" >>> getName) == ["a", "a", "a"]
 
+    it "class selector #2" $
+      run (css ".sister" >>> getName) == ["a", "a", "a"]
+
     it "id selector" $
       run (css "a#link1" >>> getName) == ["a"]
 
