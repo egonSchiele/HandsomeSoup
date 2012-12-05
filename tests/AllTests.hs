@@ -9,8 +9,7 @@ import Test.Hspec.Monadic
 
 -- mk :: (Show a, Eq a, ArrowXml b) => String -> b (T.NTree XNode) (T.NTree XNode) -> a -> Test
 run action = unsafePerformIO $ do
-      doc <- fromFile "test.html"
-      runX $ doc >>> action
+      runX $ (fromUrl "test.html") >>> action
 
 main = hspec $ do
   describe "tests" $ do
