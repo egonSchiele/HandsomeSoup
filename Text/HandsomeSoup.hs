@@ -32,6 +32,14 @@ fromUrl url = do
   contents <- runMaybeT $ openUrl url
   return $ parseHtml (fromMaybe "" contents)
 
+-- | Given a local file, returns a document. Example:
+--
+-- > doc <- fromFile "test.html"
+fromFile :: String -> IO (IOSArrow XmlTree (NTree XNode))
+fromFile url = do
+    contents <- readFile url
+    return $ parseHtml contents
+
 -- | Given a string, parses it and returns a document. Example:
 --
 -- > doc = parseHtml "<h1>hello!</h1>"

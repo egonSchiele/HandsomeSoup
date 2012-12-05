@@ -7,13 +7,9 @@ import System.IO.Unsafe
 
 import Test.Hspec.Monadic
 
-file = do
-    contents <- readFile "test.html"
-    return $ parseHtml contents
-
 -- mk :: (Show a, Eq a, ArrowXml b) => String -> b (T.NTree XNode) (T.NTree XNode) -> a -> Test
 run action = unsafePerformIO $ do
-      doc <- file
+      doc <- fromFile "test.html"
       runX $ doc >>> action
 
 main = hspec $ do
