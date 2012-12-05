@@ -51,7 +51,7 @@ Library
   Exposed-modules:     Text.HandsomeSoup, Text.CSS.Parser
   
   -- Packages needed in order to build this package.
-  Build-depends: base < 5, transformers, HTTP, parsec, containers, mtl, MaybeT, hxt, network
+  Build-depends: base < 5, transformers, HTTP, parsec, containers, mtl, MaybeT, hxt, network, hxt-http
   
   -- Modules not exported by this package.
   Other-modules: Text.CSS.Utils

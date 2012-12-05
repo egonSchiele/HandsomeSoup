@@ -15,6 +15,8 @@ import qualified Debug.Trace as D
 import Data.List
 import Control.Monad
 import Text.CSS.Parser hiding (css)
+import Text.XML.HXT.Arrow.ReadDocument
+import Text.XML.HXT.HTTP
 
 -- | Helper function for getting page content. Example:
 --
@@ -26,19 +28,14 @@ openUrl url = case parseURI url of
 
 -- | Given a url, returns a document. Example:
 --
--- > doc <- fromUrl "http://foo.com"
-fromUrl :: String -> IO (IOSArrow XmlTree (NTree XNode))
-fromUrl url = do
-  contents <- runMaybeT $ openUrl url
-  return $ parseHtml (fromMaybe "" contents)
-
--- | Given a local file, returns a document. Example:
---
--- > doc <- fromFile "test.html"
-fromFile :: String -> IO (IOSArrow XmlTree (NTree XNode))
-fromFile url = do
-    contents <- readFile url
-    return $ parseHtml contents
+-- > doc = fromUrl "http://foo.com"
+-- > doc = fromUrl "tests/test.html"
+fromUrl :: String -> IOSArrow XmlTree (NTree XNode)
+fromUrl url = readDocument [withValidate        no,
+                            withInputEncoding   isoLatin1,
+                            withParseByMimeType yes,
+                            withHTTP            [],
+                            withWarnings        no] url
 
 -- | Given a string, parses it and returns a document. Example:
 --
