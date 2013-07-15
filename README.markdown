@@ -4,7 +4,7 @@ Current Status: Usable. Please file bugs!
 
 HandsomeSoup is the library I wish I had when I started parsing HTML in Haskell.
 
-It is built on top of [HXT](http://www.fh-wedel.de/~si/HXmlToolbox/) and adds a few functions that make is easier to work with HTML.
+It is built on top of [HXT](http://www.fh-wedel.de/~si/HXmlToolbox/) and adds a few functions that make it easier to work with HTML.
 
 Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to be a complete CSS2 selector parser for HXT.
 
