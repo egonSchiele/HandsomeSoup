@@ -76,7 +76,12 @@ _fromSelectors (s:selectors) = foldl (\acc selector -> make acc selector) (make 
         makeAttr (name, value) = hasAttrValue name (==value)
         makePseudos (p:pseudos) = foldl (\acc pseudo -> acc >>> makePseudo pseudo) (makePseudo p) pseudos
         makePseudos [] = id
-        makePseudo "first-child" = take 1
+        makePseudo selector
+            | selector == "first-child" = take 1
+            | nthSelector selector = take 1 . drop (n - 1)
+            where nthSelector selector = take 10 selector == "nth-child("
+                  getN selector = read $ (takeWhile (/= ')') . drop 10) selector :: Int
+                  n = getN selector
 
 -- | Used internally to match attribute selectors like @ [att|=val] @.
 -- From: http://www.w3.org/TR/CSS2/selector.html
