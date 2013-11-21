@@ -1,6 +1,6 @@
 # HandsomeSoup
 
-Current Status: Usable. Please file bugs!
+Current Status: Usable and stable. **Needs GHC 7.6**. Please file bugs!
 
 HandsomeSoup is the library I wish I had when I started parsing HTML in Haskell.
 
