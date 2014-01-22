@@ -1,0 +1,16 @@
+- `*`: all elements
+- `div`: divs
+- `div *`: all elements within a div
+- `div, span`: divs and spans
+- `div > span`: span that has a parent div
+- `div + span`: span preceded by a div
+- `.class`: elements of class "class"
+- `div.class`: divs of class "class"
+- `#itemid`: elements with id "itemid"
+- `div#itemid`: divs with id "itemid"
+- `p[attr]`: p with with attribute "attr"
+- `p[attr=x]`: p when attribute "attr" is "x"
+- `p[attr~=x]`: p when attribute "attr" is a list containing "x"
+- `p[attr|=x]`: p when attribute "attr" begins with "x"
+- `:first-child`: the first child element
+- `:nth-child(3)`: the third child element
