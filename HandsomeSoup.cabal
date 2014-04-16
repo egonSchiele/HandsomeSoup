@@ -45,6 +45,10 @@ Extra-source-files: README.markdown
 -- Constraint on the version of Cabal needed to build this package.
 Cabal-version:       >=1.2
 
+executable handsomesoup
+  Build-depends: base < 5, transformers, HTTP, parsec, containers, mtl, MaybeT, hxt, network, hxt-http
+  main-is: Main.hs
+
 
 Library
   -- Modules exported by the library.
