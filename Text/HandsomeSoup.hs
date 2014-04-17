@@ -30,7 +30,7 @@ openUrl url = case parseURI url of
 --
 -- > doc = fromUrl "http://foo.com"
 -- > doc = fromUrl "tests/test.html"
-fromUrl :: String -> IOSArrow XmlTree (NTree XNode)
+fromUrl :: String -> IOSArrow b (NTree XNode)
 fromUrl url = readDocument [withValidate        no,
                             withInputEncoding   isoLatin1,
                             withParseByMimeType yes,
@@ -40,7 +40,7 @@ fromUrl url = readDocument [withValidate        no,
 -- | Given a string, parses it and returns a document. Example:
 --
 -- > doc = parseHtml "<h1>hello!</h1>"
-parseHtml :: String -> IOSArrow XmlTree (NTree XNode)
+parseHtml :: String -> IOSArrow b (NTree XNode)
 parseHtml = readString [withParseHTML yes, withWarnings no]
 
 -- | Shortcut for getting attributes. Example:
