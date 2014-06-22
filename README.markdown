@@ -16,6 +16,9 @@ Most importantly, it adds CSS selectors to HXT. The goal of HandsomeSoup is to b
 
 [Nokogiri](http://nokogiri.org/), the HTML parser for Ruby, has an example showing how to scrape Google search results. This is easy in HandsomeSoup:
 
+    import Text.XML.HXT.Core
+    import Text.HandsomeSoup
+    
     main = do
         let doc = fromUrl "http://www.google.com/search?q=egon+schiele"
         links <- runX $ doc >>> css "h3.r a" ! "href"
