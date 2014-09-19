@@ -15,6 +15,7 @@ Extra-source-files: README.markdown
                   , examples/*.hs
 Data-files:         tests/test.html
 library
+  hs-source-dirs:     src
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
