@@ -2,3 +2,4 @@
 *.swo
 .*
 dist/*
+cabal.sandbox.config
