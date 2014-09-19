@@ -13,6 +13,7 @@ Cabal-version:      >=1.8
 
 Extra-source-files: README.markdown
                   , examples/*.hs
+Data-files:         tests/test.html
 library
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
@@ -28,6 +29,17 @@ library
                     , network
                     , network-uri
                     , hxt-http
+
+test-suite hspec
+  hs-source-dirs:      tests
+  main-is:             AllTests.hs
+  type:                exitcode-stdio-1.0
+  Other-modules:       Paths_HandsomeSoup
+  build-depends:       base                < 5
+                     -- currently uses HSpec.Monadic submodule, removed in 1.10.0
+                     , hspec               < 1.10
+                     , HandsomeSoup
+                     , hxt
 
 Flag buildExamples
   description:       Build examples

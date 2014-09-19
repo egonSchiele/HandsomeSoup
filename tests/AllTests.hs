@@ -1,16 +1,19 @@
-module AllTests where
+module Main where
+
 import Text.HandsomeSoup
 import Text.XML.HXT.Core
-import Control.Arrow
-import qualified Data.Tree.NTree.TypeDefs as T
 import System.IO.Unsafe
+import Paths_HandsomeSoup
 
 import Test.Hspec.Monadic
 
 -- mk :: (Show a, Eq a, ArrowXml b) => String -> b (T.NTree XNode) (T.NTree XNode) -> a -> Test
 run action = unsafePerformIO $ do
-      runX $ (fromUrl "test.html") >>> action
+      testFile <- getDataFileName "tests/test.html"
+      {- runX $ (fromUrl "tests/test.html") >>> action -}
+      runX $ (fromUrl testFile) >>> action
 
+main :: IO ()
 main = hspec $ do
   describe "tests" $ do
     it "should get all links" $
