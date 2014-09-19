@@ -19,8 +19,8 @@ library
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
-  Build-depends:      base             < 5
-                    , transformers
+  Build-depends:      base            >= 4.6  &&  < 5
+                    , transformers    >= 3
                     , HTTP
                     , parsec
                     , containers
@@ -36,7 +36,7 @@ test-suite hspec
   main-is:             AllTests.hs
   type:                exitcode-stdio-1.0
   Other-modules:       Paths_HandsomeSoup
-  build-depends:       base                < 5
+  Build-depends:       base                >= 4.6  &&  < 5
                      -- currently uses HSpec.Monadic submodule, removed in 1.10.0
                      , hspec               < 1.10
                      , HandsomeSoup
@@ -54,7 +54,7 @@ executable handsomesoup
 
   hs-source-dirs:  examples
   main-is:         GoogleSearch.hs
-  Build-depends:   base          < 5
+  Build-depends:   base            >= 4.6  &&  < 5
                  , HandsomeSoup
                  , hxt
 
