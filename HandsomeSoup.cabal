@@ -9,10 +9,10 @@ Author:             Aditya Bhargava
 Maintainer:         bluemangroupie@gmail.com
 Category:           Text
 Build-type:         Simple
-Cabal-version:      >=1.2
+Cabal-version:      >=1.8
 
 Extra-source-files: README.markdown
-
+                  , examples/*.hs
 library
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
@@ -29,17 +29,19 @@ library
                     , network-uri
                     , hxt-http
 
+Flag buildExamples
+  description:       Build examples
+  default:           False
+
 executable handsomesoup
-  main-is:         Main.hs
+  If flag(buildExamples)
+    Buildable:        True
+  Else
+    Buildable:        False
+
+  hs-source-dirs:  examples
+  main-is:         GoogleSearch.hs
   Build-depends:   base          < 5
-                 , transformers
-                 , HTTP
-                 , parsec
-                 , containers
-                 , mtl
-                 , MaybeT
+                 , HandsomeSoup
                  , hxt
-                 , network
-                 , network-uri
-                 , hxt-http
 
