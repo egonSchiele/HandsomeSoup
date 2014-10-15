@@ -27,8 +27,8 @@ library
                     , mtl
                     , MaybeT
                     , hxt
-                    , network
-                    , network-uri
+                    , network >= 2.6
+                    , network-uri >= 2.6
                     , hxt-http
 
 test-suite hspec
