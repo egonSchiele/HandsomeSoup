@@ -20,7 +20,7 @@ library
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
   Build-depends:      base            >= 4.6  &&  < 5
-                    , transformers    >= 3
+                    , transformers
                     , HTTP
                     , parsec
                     , containers
