@@ -38,7 +38,7 @@ test-suite hspec
   Other-modules:       Paths_HandsomeSoup
   Build-depends:       base                >= 4.6  &&  < 5
                      -- currently uses HSpec.Monadic submodule, removed in 1.10.0
-                     , hspec               < 1.10
+                     , hspec               >= 1.11
                      , HandsomeSoup
                      , hxt
 

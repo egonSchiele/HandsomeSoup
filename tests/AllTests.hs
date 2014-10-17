@@ -5,7 +5,7 @@ import Text.XML.HXT.Core
 import System.IO.Unsafe
 import Paths_HandsomeSoup
 
-import Test.Hspec.Monadic
+import Test.Hspec
 
 -- mk :: (Show a, Eq a, ArrowXml b) => String -> b (T.NTree XNode) (T.NTree XNode) -> a -> Test
 run action = unsafePerformIO $ do
