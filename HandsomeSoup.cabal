@@ -16,7 +16,7 @@ Extra-source-files: README.markdown
 Data-files:         tests/test.html
 
 -- See comment at: http://hackage.haskell.org/package/network-uri
-flag new-network-uri
+flag network-uri
   description: Get Network.URI from the network-uri package
   default: True
 
@@ -25,7 +25,7 @@ library
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
-  if flag(new-network-uri)
+  if flag(network-uri)
     Build-depends:      base            >= 4.6  &&  < 5
                       , transformers
                       , HTTP
