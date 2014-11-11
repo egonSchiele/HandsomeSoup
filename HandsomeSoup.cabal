@@ -14,22 +14,41 @@ Cabal-version:      >=1.8
 Extra-source-files: README.markdown
                   , examples/*.hs
 Data-files:         tests/test.html
+
+-- See comment at: http://hackage.haskell.org/package/network-uri
+flag new-network-uri
+  description: Get Network.URI from the network-uri package
+  default: True
+
 library
   hs-source-dirs:     src
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
-  Build-depends:      base            >= 4.6  &&  < 5
-                    , transformers
-                    , HTTP
-                    , parsec
-                    , containers
-                    , mtl
-                    , MaybeT
-                    , hxt
-                    , network >= 2.6
-                    , network-uri >= 2.6
-                    , hxt-http
+  if flag(new-network-uri)
+    Build-depends:      base            >= 4.6  &&  < 5
+                      , transformers
+                      , HTTP
+                      , parsec
+                      , containers
+                      , mtl
+                      , MaybeT
+                      , hxt
+                      , network >= 2.6
+                      , network-uri >= 2.6
+                      , hxt-http
+  else
+    Build-depends:      base            >= 4.6  &&  < 5
+                      , transformers
+                      , HTTP
+                      , parsec
+                      , containers
+                      , mtl
+                      , MaybeT
+                      , hxt
+                      , network < 2.6
+                      , network-uri < 2.6
+                      , hxt-http
 
 test-suite hspec
   hs-source-dirs:      tests
