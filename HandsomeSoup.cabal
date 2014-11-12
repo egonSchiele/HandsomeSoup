@@ -1,5 +1,5 @@
 Name:               HandsomeSoup
-Version:            0.3.3
+Version:            0.3.4
 Synopsis:           Work with HTML more easily in HXT
 Description:        See examples and full readme on the Github page: https:\/\/github.com\/egonSchiele\/HandsomeSoup
 Homepage:           https://github.com/egonSchiele/HandsomeSoup
@@ -25,30 +25,21 @@ library
   Exposed-modules:    Text.HandsomeSoup
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
+  Build-depends:      base            >= 4.6  &&  < 5
+                    , transformers
+                    , HTTP
+                    , parsec
+                    , containers
+                    , mtl
+                    , MaybeT
+                    , hxt
+                    , hxt-http
   if flag(network-uri)
-    Build-depends:      base            >= 4.6  &&  < 5
-                      , transformers
-                      , HTTP
-                      , parsec
-                      , containers
-                      , mtl
-                      , MaybeT
-                      , hxt
-                      , network >= 2.6
+    Build-depends:      network >= 2.6
                       , network-uri >= 2.6
-                      , hxt-http
   else
-    Build-depends:      base            >= 4.6  &&  < 5
-                      , transformers
-                      , HTTP
-                      , parsec
-                      , containers
-                      , mtl
-                      , MaybeT
-                      , hxt
-                      , network < 2.6
+    Build-depends:      network < 2.6
                       , network-uri < 2.6
-                      , hxt-http
 
 test-suite hspec
   hs-source-dirs:      tests
