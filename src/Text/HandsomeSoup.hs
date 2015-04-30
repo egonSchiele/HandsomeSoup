@@ -4,7 +4,7 @@ import Text.XML.HXT.Core
 import Network.HTTP
 import Network.URI
 import Data.Tree.NTree.TypeDefs
-import Control.Monad.Maybe
+import Control.Monad.Trans.Maybe
 import Control.Monad.Trans
 import Data.Maybe
 import Text.Parsec

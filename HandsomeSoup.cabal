@@ -26,12 +26,11 @@ library
                     , Text.CSS.Parser
   Other-modules:      Text.CSS.Utils
   Build-depends:      base            >= 4.6  &&  < 5
-                    , transformers
+                    , transformers    >= 0.3
                     , HTTP
                     , parsec
                     , containers
                     , mtl
-                    , MaybeT
                     , hxt
                     , hxt-http
   if flag(network-uri)
