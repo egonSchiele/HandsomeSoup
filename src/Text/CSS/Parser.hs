@@ -13,7 +13,7 @@ import Text.CSS.Utils
 -- if the attr value is prefixed with a '~', we treat
 -- that attribute as a list of words separated by a space
 -- and make sure that at least one of those words matches.
--- 
+--
 -- if the attr value is prefixed with a `|`, the value must
 -- be exactly val or start with val immediately followed by a '-'.
 -- This is primarily intended to allow language subcode matches.
@@ -69,12 +69,12 @@ idSelector = do
 -- | selects attributes, like @ [id] @ (element must have id) or @ [id=foo] @ (element must have id foo).
 attributeSelector :: ParsecT [Char] u I.Identity ([Char], [Char])
 attributeSelector = do
-      _contents <- between (char '[') (char ']') (many1 (alphaNum <|> oneOf "/-_|~=\"'."))
+      _contents <- between (char '[') (char ']') (many1 (noneOf "[]"))
       -- remove quotes
       let contents = filter (\c -> c /= '"' && c /= '\'') _contents
-      if "~=" `isInfixOf` contents 
+      if "~=" `isInfixOf` contents
           then return $ (\(a, b) -> (a, '~':b)) $ splitOn "~=" contents
-          else if "|=" `isInfixOf` contents 
+          else if "|=" `isInfixOf` contents
               then return $ (\(a, b) -> (a, '|':b)) $ splitOn "|=" contents
               else if '=' `elem` contents
                    then return $ splitOn "=" contents
@@ -120,7 +120,7 @@ simpleSelectorNoTag = do
 simpleSelector :: ParsecT [Char] u I.Identity Selector
 simpleSelector = simpleSelectorTag <|> simpleSelectorNoTag <|> try childOf <|> try followedBy <|> space_
 
--- | One or more simple selectors separated by combinators. 
+-- | One or more simple selectors separated by combinators.
 selector :: ParsecT [Char] u I.Identity [[Selector]]
 selector = many1 simpleSelector `sepBy` (spaces >> string "," >> spaces)
 
