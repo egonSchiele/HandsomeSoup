@@ -32,7 +32,7 @@ openUrl url = case parseURI url of
 -- > doc = fromUrl "tests/test.html"
 fromUrl :: String -> IOSArrow b (NTree XNode)
 fromUrl url = readDocument [withValidate        no,
-                            withInputEncoding   isoLatin1,
+                            withInputEncoding   utf8,
                             withParseByMimeType yes,
                             withHTTP            [],
                             withWarnings        no] url
